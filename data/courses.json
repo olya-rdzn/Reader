@@ -1,0 +1,62 @@
+{
+ "title": "Lecture Notes",
+ "footer": {
+  "email": "michail.f@miu.edu.mn",
+  "website": "https://mikkoemanon.github.io/CV/#about"
+ },
+ "courses": [
+  {
+   "id": "culture",
+   "title": "Seminar on Culture Studies",
+   "languages": [
+    {
+     "code": "en",
+     "label": "EN",
+     "name": "English"
+    },
+    {
+     "code": "mn",
+     "label": "МН",
+     "name": "Монгол"
+    }
+   ],
+   "lessons": [
+    {
+     "id": "intercultural-communication",
+     "title": "Intercultural Communication",
+     "file": "culture/01-intercultural-communication.json"
+    },
+    {
+     "id": "high-context-low-context",
+     "title": "High-context & Low-context Cultures",
+     "file": "culture/02-high-context-low-context.json"
+    },
+    {
+     "id": "hofstede",
+     "title": "Hofstede’s Cultural Dimensions",
+     "file": "culture/03-hofstede.json"
+    },
+    {
+     "id": "contrastive-rhetoric",
+     "title": "Contrastive Rhetoric",
+     "file": "culture/04-contrastive-rhetoric.json"
+    },
+    {
+     "id": "lewis-model",
+     "title": "The Lewis Model",
+     "file": "culture/05-lewis-model.json"
+    },
+    {
+     "id": "byram-model",
+     "title": "Byram’s Model of Intercultural Communicative Competence",
+     "file": "culture/06-byram-model.json"
+    },
+    {
+     "id": "linguistic-relativity",
+     "title": "Linguistic Relativity",
+     "file": "culture/07-linguistic-relativity.json"
+    }
+   ]
+  }
+ ]
+}
