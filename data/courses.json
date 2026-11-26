@@ -55,6 +55,11 @@
      "id": "linguistic-relativity",
      "title": "Linguistic Relativity",
      "file": "culture/07-linguistic-relativity.json"
+    },
+    {
+     "id": "lecture-notes",
+     "title": "Demo Lecture 08",
+     "file": "culture/08-lecture-notes.json"
     }
    ]
   }
