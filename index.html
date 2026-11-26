@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Reader</title>
+<title>Lecture Notes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
@@ -47,6 +47,8 @@ main{background:var(--paper);border-inline:1px solid var(--line);box-shadow:0 18
 .off0 .l0,.off1 .l1,.off2 .l2,.off3 .l3,.off4 .l4{height:0}
 .row:hover .c,.row.on .c,.row.hit .c{background:var(--tint);box-shadow:inset 3px 0 0 var(--accent)}
 .in{padding:8px 40px;max-width:46rem;margin-inline:auto}
+/* Keep the final row flush with the end of its content. */
+.row:last-child .in{padding-bottom:0}
 .row.sp .in{padding-top:22px}
 h2,h3,h4,p{margin:0}
 .in p+p{margin-top:.6em}
@@ -63,7 +65,7 @@ figure{margin:0;padding:18px 0 40px;text-align:center}
 figure img{max-width:100%;height:auto;padding:10px;background:#fffdf8;border:1px solid var(--line);border-radius:6px;box-shadow:0 6px 20px rgba(40,25,60,.08)}
 mark.hl{background:var(--hl);color:inherit;border-radius:2px;cursor:pointer}
 .err{padding:40px;font:15px Inter,sans-serif;color:var(--mute)}
-footer{position:relative;z-index:11;background:var(--paper);padding:30px 20px 42px;margin-top:26px;border-top:1px solid var(--line);text-align:center;font:400 13px Inter,system-ui,sans-serif;color:var(--mute)}
+footer{padding:30px 20px 42px;margin-top:26px;border-top:1px solid var(--line);text-align:center;font:400 13px Inter,system-ui,sans-serif;color:var(--mute)}
 footer a{color:inherit;text-underline-offset:3px}
 footer a:hover{color:var(--accent)}
 .gut{position:fixed;top:calc(var(--hh) + env(safe-area-inset-top,0px));bottom:0;width:14px;margin-left:-7px;cursor:col-resize;z-index:10;touch-action:none}
@@ -158,10 +160,17 @@ function cols(){doc.style.setProperty('--cols',S.langs.map(function(l,i){return(
 function layout(){cols();for(var i=0;i<5;i++)doc.classList.toggle('off'+i,i<S.langs.length&&!S.vis[i]);
 [].forEach.call(langsEl.children,function(b,i){b.setAttribute('aria-pressed',String(S.vis[i]))});
 gEl.innerHTML='';var v=vis();for(var j=0;j<v.length-1;j++){var d=document.createElement('div');d.className='gut';d.dataset.j=j;gEl.appendChild(d)}placeG()}
-function placeG(){var v=vis(),o=off(),W=innerWidth-o,t=0,a=0;v.forEach(function(i){t+=S.w[i]});[].forEach.call(gEl.children,function(d,j){a+=S.w[v[j]];d.style.left=(o+a/t*W)+'px'})}
+function placeG(){
+var v=vis(),first=$('.row',rows);
+if(!first)return;
+[].forEach.call(gEl.children,function(d,j){
+var leftCell=$('.c[data-l="'+v[j]+'"]',first);
+if(leftCell)d.style.left=leftCell.getBoundingClientRect().right+'px';
+})
+}
 gEl.addEventListener('pointerdown',function(e){var d=e.target.closest('.gut');if(!d)return;d.setPointerCapture(e.pointerId);drag=+d.dataset.j;doc.classList.add('drag')});
-gEl.addEventListener('pointermove',function(e){if(drag<0)return;var v=vis(),o=off(),W=innerWidth-o,t=0,pre=0,k;v.forEach(function(i){t+=S.w[i]});for(k=0;k<drag;k++)pre+=S.w[v[k]];
-var pair=S.w[v[drag]]+S.w[v[drag+1]],m=Math.min(t*.12,pair/3),x=(e.clientX-o)/W*t-pre;x=Math.max(m,Math.min(pair-m,x));S.w[v[drag]]=x;S.w[v[drag+1]]=pair-x;cols();placeG()});
+gEl.addEventListener('pointermove',function(e){if(drag<0)return;var v=vis(),first=$('.row',rows);if(!first)return;var rect=first.getBoundingClientRect(),t=0,pre=0,k;v.forEach(function(i){t+=S.w[i]});for(k=0;k<drag;k++)pre+=S.w[v[k]];
+var pair=S.w[v[drag]]+S.w[v[drag+1]],m=Math.min(t*.12,pair/3),x=(e.clientX-rect.left)/rect.width*t-pre;x=Math.max(m,Math.min(pair-m,x));S.w[v[drag]]=x;S.w[v[drag+1]]=pair-x;cols();placeG()});
 function endDrag(){drag=-1;doc.classList.remove('drag')}
 gEl.addEventListener('pointerup',endDrag);gEl.addEventListener('pointercancel',endDrag);
 
@@ -208,13 +217,11 @@ if(!getSelection().isCollapsed)return;
 var r=e.target.closest('.row');if(onRow)onRow.classList.remove('on');onRow=(onRow===r)?null:r;if(onRow)onRow.classList.add('on')});
 document.addEventListener('click',function(e){if(tb.dataset.m==='rm'&&!e.target.closest('mark.hl')&&!e.target.closest('#tb'))hideTb()});
 
-/* footer */
 function footer(){var f=S.D.footer||{},o=[];
 if(f.email)o.push('<a href="mailto:'+esc(f.email)+'">'+esc(f.email)+'</a>');
 if(f.website)o.push('<a href="'+esc(f.website)+'" target="_blank" rel="noopener">'+esc(f.website.replace(/^https?:\/\//,'').replace(/[#?].*$/,'').replace(/\/$/,''))+'</a>');
 $('#ft').innerHTML=o.join(' · ');$('#ft').hidden=!o.length}
 
-/* start */
 fetch('data/courses.json').then(function(r){return r.json()}).then(function(D){S.D=D;if(D.title)document.title=D.title;buildTree();footer();route()})
 .catch(function(){rows.innerHTML='<p class="err">Could not load data/courses.json — serve this folder over http (Netlify, or: python3 -m http.server).</p>'});
 })();
