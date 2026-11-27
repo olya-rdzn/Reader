@@ -1,7 +1,6 @@
 # Reader
 
 A small, static Reader for course lectures — built for reading parallel texts side by side.
-
 No backend nor tracking. Just open the page and have fun studying :)
 
 ## What it does
