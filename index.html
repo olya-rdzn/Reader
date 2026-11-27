@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Lecture Notes</title>
+<title>Reader</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
@@ -40,16 +40,18 @@ summary:hover{background:var(--tint)}
 .rs mark{background:var(--hl);color:inherit;border-radius:2px}
 main{background:var(--paper);border-inline:1px solid var(--line);box-shadow:0 18px 44px rgba(40,25,60,.07);min-height:calc(100dvh - var(--hh));font-size:calc(var(--fs,17.5)*1px);transition:margin-left .3s}
 @media (min-width:901px){body.open main{margin-left:264px}}
+#wrap{position:relative}
 .row{display:grid;grid-template-columns:var(--cols,1fr 1fr);transition:grid-template-columns .35s ease}
 .drag .row{transition:none}
 .c{min-width:0;overflow:hidden;transition:background .2s,box-shadow .2s}
 .c.l1,.c.l3{background:rgba(63,37,98,.03)}
+.c+.c{box-shadow:inset 2px 0 0 var(--line)}
+.off0 .l1,.off0.off1 .l2,.off0.off1.off2 .l3{box-shadow:none}
 .off0 .l0,.off1 .l1,.off2 .l2,.off3 .l3,.off4 .l4{height:0}
-.row:hover,.row.on,.row.hit{background:var(--tint)}
-.row:hover .c,.row.on .c,.row.hit .c{background:var(--tint);box-shadow:inset 3px 0 0 var(--accent)}
+.row:hover .c,.row.on .c,.row.hit .c{background:var(--tint);box-shadow:inset 2px 0 0 var(--accent)}
 .in{padding:8px 40px;max-width:46rem;margin-inline:auto}
 .row.sp .in{padding-top:22px}
-#rows .row:last-child .in{padding-bottom:34px}
+#rows .row:last-child .in{padding-bottom:28px}
 h2,h3,h4,p{margin:0}
 .in p+p{margin-top:.6em}
 h2{font:700 1.5em/1.3 Inter,system-ui,sans-serif;color:var(--accent);padding:1.3em 0 .5em}
@@ -65,11 +67,16 @@ figure{margin:0;padding:18px 0 40px;text-align:center}
 figure img{max-width:100%;height:auto;padding:10px;background:#fffdf8;border:1px solid var(--line);border-radius:6px;box-shadow:0 6px 20px rgba(40,25,60,.08)}
 mark.hl{background:var(--hl);color:inherit;border-radius:2px;cursor:pointer}
 .err{padding:40px;font:15px Inter,sans-serif;color:var(--mute)}
-footer{padding:30px 20px 42px;margin-top:0;border-top:1px solid var(--line);text-align:center;font:400 13px Inter,system-ui,sans-serif;color:var(--mute)}
+footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:16px 24px 26px;border-top:1px solid var(--line);font:400 13px Inter,system-ui,sans-serif;color:var(--mute)}
+.fn{display:flex;gap:8px}
+.fn button{font:500 15px Inter,system-ui,sans-serif;color:var(--accent);background:var(--tint);border:1px solid var(--line);border-radius:999px;min-width:46px;height:34px;cursor:pointer}
+.fn button:not(:disabled):hover{border-color:var(--accent)}
+.fn button:disabled{opacity:.35;cursor:default}
 footer a{color:inherit;text-underline-offset:3px}
 footer a:hover{color:var(--accent)}
-.gut{position:fixed;top:calc(var(--hh) + env(safe-area-inset-top,0px));bottom:0;width:14px;margin-left:-7px;cursor:col-resize;z-index:10;touch-action:none}
-.gut::after{content:"";position:absolute;left:6px;top:0;bottom:0;width:2px;background:var(--line);transition:background .2s}
+#gutters{position:absolute;inset:0;pointer-events:none}
+.gut{position:absolute;top:0;bottom:0;width:14px;margin-left:-7px;cursor:col-resize;pointer-events:auto;z-index:2;touch-action:none}
+.gut::after{content:"";position:absolute;left:7px;top:0;bottom:0;width:2px;background:transparent;transition:background .2s}
 .gut:hover::after,.drag .gut::after{background:var(--accent)}
 #tb{position:fixed;z-index:40;background:var(--brand);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
 #tb button{font:500 13px Inter,system-ui,sans-serif;color:#fff;background:none;border:0;padding:8px 14px;cursor:pointer}
@@ -90,15 +97,14 @@ footer a:hover{color:var(--accent)}
 <div id="res" hidden></div>
 </aside>
 <main id="doc">
-<div id="rows"></div>
+<div id="wrap"><div id="rows"></div><div id="gutters"></div></div>
 <footer id="ft"></footer>
 </main>
-<div id="gutters"></div>
 <div id="tb" hidden><button id="tbb"></button></div>
 <script>
 (function(){
 var $=function(s,r){return(r||document).querySelector(s)};
-var doc=$('#doc'),rows=$('#rows'),tree=$('#tree'),res=$('#res'),q=$('#q'),langsEl=$('#langs'),gEl=$('#gutters'),tb=$('#tb'),tbb=$('#tbb'),root=document.documentElement;
+var doc=$('#doc'),wrap=$('#wrap'),rows=$('#rows'),tree=$('#tree'),res=$('#res'),q=$('#q'),langsEl=$('#langs'),gEl=$('#gutters'),tb=$('#tb'),tbb=$('#tbb'),ft=$('#ft'),root=document.documentElement;
 var S={D:null,ci:-1,li:-1,langs:[],vis:[],w:[],cache:{},idx:null,pb:null,hits:[]},drag=-1,cur=null,onRow=null;
 function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
@@ -112,8 +118,7 @@ function setFs(v){fs=Math.min(26,Math.max(14,v));doc.style.setProperty('--fs',fs
 $('#fp').onclick=function(){setFs(fs+1.5)};$('#fm').onclick=function(){setFs(fs-1.5)};setFs(fs);
 
 /* sidebar */
-$('#menu').onclick=function(){document.body.classList.toggle('open');placeG();setTimeout(placeG,320)};
-addEventListener('resize',placeG);
+$('#menu').onclick=function(){document.body.classList.toggle('open')};
 if(innerWidth>900)document.body.classList.add('open');
 function closeNarrow(){if(innerWidth<=900)document.body.classList.remove('open')}
 function buildTree(){
@@ -129,7 +134,7 @@ function load(f){return S.cache[f]||(S.cache[f]=fetch('data/'+f).then(function(r
 function open(ci,li){
 var C=S.D.courses[ci],Ls=C&&C.lessons[li];if(!Ls)return;
 if(S.ci!==ci){S.ci=ci;S.langs=C.languages;S.vis=S.langs.map(function(){return true});S.w=S.langs.map(function(){return 1});buildLangs()}
-S.li=li;var b=S.pb;S.pb=null;
+S.li=li;navState();var b=S.pb;S.pb=null;
 load(Ls.file).then(function(L){
 if(S.ci!==ci||S.li!==li)return;
 hideTb();rows.innerHTML=render(L.blocks);layout();applyAllHL();mark(ci,li);
@@ -159,20 +164,10 @@ function cols(){doc.style.setProperty('--cols',S.langs.map(function(l,i){return(
 function layout(){cols();for(var i=0;i<5;i++)doc.classList.toggle('off'+i,i<S.langs.length&&!S.vis[i]);
 [].forEach.call(langsEl.children,function(b,i){b.setAttribute('aria-pressed',String(S.vis[i]))});
 gEl.innerHTML='';var v=vis();for(var j=0;j<v.length-1;j++){var d=document.createElement('div');d.className='gut';d.dataset.j=j;gEl.appendChild(d)}placeG()}
-function placeG(){var v=vis(),row=rows.querySelector('.row');if(!row)return;[].forEach.call(gEl.children,function(d,j){var lc=row.querySelector('.c[data-l="'+v[j]+'"]'),rc=row.querySelector('.c[data-l="'+v[j+1]+'"]');if(lc&&rc){var a=lc.getBoundingClientRect(),b=rc.getBoundingClientRect();d.style.left=((a.right+b.left)/2)+'px'}})}
+function placeG(){var v=vis(),t=0,a=0;v.forEach(function(i){t+=S.w[i]});[].forEach.call(gEl.children,function(d,j){a+=S.w[v[j]];d.style.left=(a/t*100)+'%'})}
 gEl.addEventListener('pointerdown',function(e){var d=e.target.closest('.gut');if(!d)return;d.setPointerCapture(e.pointerId);drag=+d.dataset.j;doc.classList.add('drag')});
-gEl.addEventListener('pointermove',function(e){
-if(drag<0)return;
-var v=vis(),row=rows.querySelector('.row'),rect=row&&row.getBoundingClientRect();
-if(!rect||rect.width<=0)return;
-var t=0,pre=0,k;
-v.forEach(function(i){t+=S.w[i]});
-for(k=0;k<drag;k++)pre+=S.w[v[k]];
-var pair=S.w[v[drag]]+S.w[v[drag+1]],m=Math.min(t*.12,pair/3);
-var x=(e.clientX-rect.left)/rect.width*t-pre;
-x=Math.max(m,Math.min(pair-m,x));
-S.w[v[drag]]=x;S.w[v[drag+1]]=pair-x;cols();placeG()
-});
+gEl.addEventListener('pointermove',function(e){if(drag<0)return;var v=vis(),R=wrap.getBoundingClientRect(),t=0,pre=0,k;v.forEach(function(i){t+=S.w[i]});for(k=0;k<drag;k++)pre+=S.w[v[k]];
+var pair=S.w[v[drag]]+S.w[v[drag+1]],m=Math.min(t*.12,pair/3),x=(e.clientX-R.left)/R.width*t-pre;x=Math.max(m,Math.min(pair-m,x));S.w[v[drag]]=x;S.w[v[drag+1]]=pair-x;cols();placeG()});
 function endDrag(){drag=-1;doc.classList.remove('drag')}
 gEl.addEventListener('pointerup',endDrag);gEl.addEventListener('pointercancel',endDrag);
 
@@ -195,16 +190,16 @@ res.addEventListener('click',function(e){var b=e.target.closest('.rs');if(!b)ret
 function hk(){var C=S.D.courses[S.ci];return'hl:'+C.id+'/'+C.lessons[S.li].id}
 function hget(){try{return JSON.parse(store(hk())||'[]')}catch(e){return[]}}
 function hput(a){store(hk(),JSON.stringify(a))}
-function wrap(c,s,e,id){var w=document.createTreeWalker(c,NodeFilter.SHOW_TEXT),pos=0,segs=[],n;
+function wrapT(c,s,e,id){var w=document.createTreeWalker(c,NodeFilter.SHOW_TEXT),pos=0,segs=[],n;
 while((n=w.nextNode())){var len=n.data.length,a=Math.max(s,pos),z=Math.min(e,pos+len);if(a<z)segs.push([n,a-pos,z-pos]);pos+=len}
 segs.forEach(function(g){var r=document.createRange();r.setStart(g[0],g[1]);r.setEnd(g[0],g[2]);var m=document.createElement('mark');m.className='hl';m.dataset.id=id;r.surroundContents(m)})}
-function applyAllHL(){hget().forEach(function(h){var c=$('.row[data-b="'+h.b+'"] .c[data-l="'+h.l+'"] .in',rows);if(c)wrap(c,h.s,h.e,h.id)})}
+function applyAllHL(){hget().forEach(function(h){var c=$('.row[data-b="'+h.b+'"] .c[data-l="'+h.l+'"] .in',rows);if(c)wrapT(c,h.s,h.e,h.id)})}
 function inCell(n){var el=n.nodeType===1?n:n.parentElement,c=el&&el.closest('.in');return c&&rows.contains(c)?c:null}
 function showTb(rect,label,m,fn){tbb.textContent=label;tb.hidden=false;tb.dataset.m=m;cur=fn;tb.style.left=Math.max(8,Math.min(innerWidth-120,rect.left+rect.width/2-48))+'px';tb.style.top=Math.max(70,rect.top-46)+'px'}
 function hideTb(){tb.hidden=true;tb.dataset.m='';cur=null}
 function addH(r){var c=inCell(r.startContainer),row=c.closest('.row'),pre=document.createRange();pre.selectNodeContents(c);pre.setEnd(r.startContainer,r.startOffset);
 var s=pre.toString().length,e=s+r.toString().length,id=Date.now().toString(36)+Math.random().toString(36).slice(2,5),a=hget();
-a.push({id:id,b:+row.dataset.b,l:+c.parentElement.dataset.l,s:s,e:e});hput(a);wrap(c,s,e,id);getSelection().removeAllRanges()}
+a.push({id:id,b:+row.dataset.b,l:+c.parentElement.dataset.l,s:s,e:e});hput(a);wrapT(c,s,e,id);getSelection().removeAllRanges()}
 function rmH(id){[].forEach.call(rows.querySelectorAll('mark[data-id="'+id+'"]'),function(m){var p=m.parentNode;while(m.firstChild)p.insertBefore(m.firstChild,m);p.removeChild(m);p.normalize()});hput(hget().filter(function(h){return h.id!==id}))}
 var st;document.addEventListener('selectionchange',function(){clearTimeout(st);st=setTimeout(function(){var s=getSelection();
 if(!s.rangeCount||s.isCollapsed){if(tb.dataset.m==='add')hideTb();return}
@@ -219,13 +214,16 @@ if(!getSelection().isCollapsed)return;
 var r=e.target.closest('.row');if(onRow)onRow.classList.remove('on');onRow=(onRow===r)?null:r;if(onRow)onRow.classList.add('on')});
 document.addEventListener('click',function(e){if(tb.dataset.m==='rm'&&!e.target.closest('mark.hl')&&!e.target.closest('#tb'))hideTb()});
 
-function footer(){var f=S.D.footer||{},o=[];
-if(f.email)o.push('<a href="mailto:'+esc(f.email)+'">'+esc(f.email)+'</a>');
-if(f.website)o.push('<a href="'+esc(f.website)+'" target="_blank" rel="noopener">'+esc(f.website.replace(/^https?:\/\//,'').replace(/[#?].*$/,'').replace(/\/$/,''))+'</a>');
-$('#ft').innerHTML=o.join(' · ');$('#ft').hidden=!o.length}
+/* footer: previous / next lecture, email */
+function footer(){var f=S.D.footer||{};
+ft.innerHTML='<div class="fn"><button id="pv" aria-label="Previous lecture">←</button><button id="nx" aria-label="Next lecture">→</button></div>'+(f.email?'<a href="mailto:'+esc(f.email)+'">'+esc(f.email)+'</a>':'')}
+ft.addEventListener('click',function(e){var b=e.target.closest('button');if(!b||b.disabled)return;go(S.ci,S.li+(b.id==='nx'?1:-1),null)});
+function navState(){var p=$('#pv'),n=$('#nx');if(!p||S.ci<0)return;var L=S.D.courses[S.ci].lessons;
+p.disabled=S.li<1;n.disabled=S.li>=L.length-1;p.title=S.li>0?L[S.li-1].title:'';n.title=S.li<L.length-1?L[S.li+1].title:''}
 
+/* start */
 fetch('data/courses.json').then(function(r){return r.json()}).then(function(D){S.D=D;if(D.title)document.title=D.title;buildTree();footer();route()})
-.catch(function(){rows.innerHTML='<p class="err">Could not load data/courses.json — serve this folder over http (Netlify, or: python3 -m http.server).</p>'});
+.catch(function(){rows.innerHTML='<p class="err">Could not load data/courses.json — serve this folder over http (GitHub Pages, or: python3 -m http.server).</p>'});
 })();
 </script>
 </body>
