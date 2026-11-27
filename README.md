@@ -22,6 +22,6 @@ The Reader currently includes lecture notes for:
 
 Live here: https://olya-rdzn.github.io/Reader/
 
-## Contact
+## Contact me
 
-Michail F. — [michail.f@miu.edu.mn](mailto:michail.f@miu.edu.mn)
+email: [michail.f@miu.edu.mn](mailto:michail.f@miu.edu.mn)
